@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171311">
+  <title>Ketuk Ryoshu — Limbus Plushie</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      background: #171311;
+      color: #f6eee3;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      --red: #bd4138;
+      --muted: #b9aaa0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100svh;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse at 50% 42%, #38241f 0, #211916 36%, transparent 72%),
+        repeating-linear-gradient(135deg, #ffffff03 0 1px, transparent 1px 7px),
+        #171311;
+    }
+
+    body::before, body::after {
+      position: fixed;
+      z-index: -1;
+      width: 24rem;
+      height: 24rem;
+      border: 1px solid #bd41381b;
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+    body::before { top: -15rem; left: -8rem; }
+    body::after { right: -12rem; bottom: -17rem; width: 34rem; height: 34rem; }
+
+    main {
+      display: grid;
+      min-height: 100svh;
+      place-items: center;
+      padding: 32px 20px;
+    }
+
+    .game {
+      width: min(100%, 510px);
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 14px;
+      color: #d18d79;
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before, .eyebrow::after {
+      width: 24px;
+      height: 1px;
+      background: #ff1100;
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 9vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -.055em;
+      line-height: 1;
+    }
+    h1 span { color: #ff1500; }
+
+    .intro {
+      margin: 14px 0 24px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .plushie-wrap {
+      position: relative;
+      width: min(100%, 348px);
+      margin: 0 auto;
+      padding: 10px;
+      border: 1px solid #d6a27c55;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #f0d8bb22, #bd413811 65%, transparent);
+      box-shadow: 0 0 70px #c14b3d1a, 0 24px 60px #0008;
+    }
+    .plushie-wrap::before {
+      position: absolute;
+      inset: 10px;
+      border: 1px solid #fff2;
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+
+    .plushie {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-drag: none;
+      transition: transform .16s ease, filter .16s ease;
+    }
+    .plushie:hover { filter: saturate(1.08) brightness(1.04); transform: scale(1.025); }
+    .plushie:active { transform: scale(.94) rotate(-3deg); }
+    .plushie-wrap.is-bopping .plushie { animation: bop .28s ease-out; }
+    .plushie:focus-visible { outline: 3px solid #ff0000; outline-offset: 5px; }
+
+    @keyframes bop {
+      45% { transform: scale(.93) rotate(-4deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    .spark {
+      position: absolute;
+      z-index: 1;
+      color: #f3c79f;
+      font-size: 1.2rem;
+      pointer-events: none;
+      animation: sparkle .8s ease-out forwards;
+    }
+    @keyframes sparkle {
+      from { opacity: 1; transform: translate(-50%, -50%) scale(.5) rotate(0); }
+      to { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.5) rotate(75deg); }
+    }
+
+    .scoreboard {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 22px auto 0;
+    }
+    .score-card {
+      min-width: 132px;
+      padding: 11px 18px 12px;
+      border: 1px solid #ffffff12;
+      border-radius: 10px;
+      background: #ffffff08;
+    }
+    .score-label {
+      display: block;
+      margin-bottom: 3px;
+      color: #b9aaa0;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .score {
+      color: #f7e5d2;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.8rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hint {
+      min-height: 1.4em;
+      margin: 15px 0 0;
+      color: #ff0000;
+      font-size: .83rem;
+      transition: color .2s;
+    }
+    .hint.pop { color: #ffe5da; }
+    .footer {
+      margin: 31px 0 0;
+      color: #8f7f75;
+      font-size: .68rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="game" aria-labelledby="title">
+      <h1 id="title">Klik <span>Ryoshu</span></h1>
+      <p class="intro">My istri gwe</p>
+
+      <div class="plushie-wrap" id="plushie-wrap">
+        <img
+          class="plushie"
+          id="plushie"
+          src="images/limbus-company-plushie-ryoshu-17cm-f03cf8a2.jpg"
+          alt="Plushie Ryoshu dari Limbus Company"
+          role="button"
+          tabindex="0"
+          aria-label="Ketuk plushie Ryoshu untuk mendapat suara dan poin"
+          draggable="false">
+      </div>
+
+      <div class="scoreboard" aria-label="Skor permainan">
+        <div class="score-card">
+          <span class="score-label">Klik</span>
+          <span class="score" id="score" aria-live="polite">0</span>
+        </div>
+        <div class="score-card">
+          <span class="score-label">Rekor</span>
+          <span class="score" id="best">0</span>
+        </div>
+      </div>
+      <p class="hint" id="hint" aria-live="polite">Klik atau tekan Enter pada Ryoshu untuk mulai.</p>
+      <audio id="voice" src="voice/LCB_Sinner_Ry%C5%8Dsh%C5%AB_Get.wav" preload="auto"></audio>
+    </section>
+  </main>
+
+  <script>
+    const plushie = document.querySelector("#plushie");
+    const plushieWrap = document.querySelector("#plushie-wrap");
+    const voice = document.querySelector("#voice");
+    const scoreDisplay = document.querySelector("#score");
+    const bestDisplay = document.querySelector("#best");
+    const hint = document.querySelector("#hint");
+    const messages = [
+      "The audience here is dull. A real work of art should open their eyes.",
+      "Didn’t even break a sweat. It’ll take more than this to excite me.",
+      "Don’t bother me if you aren’t trying to tell me what time it is.",
+      "Yep, nothing like a cig after lunch to drive off the dullness.",
+      "If you wanna hang out with me, the least you can do is carry a lighter around, clock."
+    ];
+    let score = 0;
+    let hintTimer;
+
+    try {
+      bestDisplay.textContent = localStorage.getItem("ryoshu-plushie-best") || "0";
+    } catch (error) {
+      console.warn("Rekor lokal tidak dapat dibaca.", error);
+    }
+
+    function makeSparkles() {
+      const symbols = ["✦", "✧", "·", "✦"];
+      for (let i = 0; i < 4; i += 1) {
+        const spark = document.createElement("span");
+        spark.className = "spark";
+        spark.textContent = symbols[i];
+        spark.style.left = `${35 + Math.random() * 30}%`;
+        spark.style.top = `${35 + Math.random() * 30}%`;
+        spark.style.setProperty("--x", `${(Math.random() - .5) * 150}px`);
+        spark.style.setProperty("--y", `${-35 - Math.random() * 100}px`);
+        plushieWrap.append(spark);
+        spark.addEventListener("animationend", () => spark.remove(), { once: true });
+      }
+    }
+
+    function tapRyoshu() {
+      score += 1;
+      scoreDisplay.textContent = String(score);
+      hint.textContent = messages[(score - 1) % messages.length];
+      hint.classList.add("pop");
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => hint.classList.remove("pop"), 450);
+
+      const best = Number(bestDisplay.textContent) || 0;
+      if (score > best) {
+        bestDisplay.textContent = String(score);
+        try {
+          localStorage.setItem("ryoshu-plushie-best", String(score));
+        } catch (error) {
+          console.warn("Rekor lokal tidak dapat disimpan.", error);
+        }
+      }
+
+      voice.currentTime = 0;
+      voice.play().catch(error => console.warn("Suara Ryōshū tidak dapat diputar.", error));
+      plushieWrap.classList.remove("is-bopping");
+      void plushieWrap.offsetWidth;
+      plushieWrap.classList.add("is-bopping");
+      makeSparkles();
+    }
+
+    plushie.addEventListener("click", tapRyoshu);
+    plushie.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        tapRyoshu();
+      }
+    });
+  </script>
+</body>
+</html>
