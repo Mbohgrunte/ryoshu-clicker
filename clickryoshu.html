@@ -310,7 +310,7 @@
         <ol class="leaderboard-list" id="leaderboard-list" aria-label="10 skor tertinggi"></ol>
       </section>
       <p class="hint" id="hint" aria-live="polite">Klik atau tekan Enter pada Ryoshu untuk mulai.</p>
-      <audio id="voice" src="voice/LCB_Sinner_Ry%C5%8Dsh%C5%AB_Get.wav" preload="auto"></audio>
+      <audio id="voice" preload="auto"></audio>
     </section>
   </main>
 
@@ -326,6 +326,13 @@
     const leaderboardList = document.querySelector("#leaderboard-list");
     const leaderboardStatus = document.querySelector("#leaderboard-status");
     const leaderboardKey = "ryoshu-plushie-leaderboard";
+    const voiceTracks = [
+      "LCB_Sinner_Ryōshū_Chat_1.wav",
+      "LCB_Sinner_Ryōshū_Clear.wav",
+      "LCB_Sinner_Ryōshū_Get.wav",
+      "LCB_Sinner_Ryōshū_Noon.wav"
+    ];
+    let previousVoiceTrack = "";
     let leaderboard = [];
     const messages = [
       "The audience here is dull. A real work of art should open their eyes.",
@@ -437,6 +444,22 @@
       }
     }
 
+    function playRandomVoice() {
+      const availableTracks = voiceTracks.filter(track => track !== previousVoiceTrack);
+      const track = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+      previousVoiceTrack = track;
+      const source = `voice/${encodeURIComponent(track)}`;
+
+      if (!voice.src.endsWith(source)) {
+        voice.src = source;
+        voice.load();
+      } else {
+        voice.currentTime = 0;
+      }
+
+      voice.play().catch(error => console.warn("Suara Ryōshū tidak dapat diputar.", error));
+    }
+
     function tapRyoshu() {
       score += 1;
       scoreDisplay.textContent = String(score);
@@ -455,8 +478,7 @@
         }
       }
 
-      voice.currentTime = 0;
-      voice.play().catch(error => console.warn("Suara Ryōshū tidak dapat diputar.", error));
+      playRandomVoice();
       plushieWrap.classList.remove("is-bopping");
       void plushieWrap.offsetWidth;
       plushieWrap.classList.add("is-bopping");
