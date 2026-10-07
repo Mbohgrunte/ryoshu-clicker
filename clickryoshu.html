@@ -46,7 +46,8 @@
     main {
       display: grid;
       min-height: 100svh;
-      place-items: center;
+      justify-items: center;
+      align-content: start;
       padding: 32px 20px;
     }
 
@@ -299,6 +300,8 @@
           <span class="score" id="best">0</span>
         </div>
       </div>
+      <p class="hint" id="hint" aria-live="polite">Klik atau tekan Enter pada Ryoshu untuk mulai.</p>
+      <audio id="voice" preload="auto"></audio>
       <section class="leaderboard" aria-labelledby="leaderboard-title">
         <h2 id="leaderboard-title">Leaderboard lokal</h2>
         <form class="save-score" id="save-score-form">
@@ -309,8 +312,6 @@
         <p class="leaderboard-status" id="leaderboard-status" aria-live="polite">Simpan skor sesi ini untuk masuk peringkat.</p>
         <ol class="leaderboard-list" id="leaderboard-list" aria-label="10 skor tertinggi"></ol>
       </section>
-      <p class="hint" id="hint" aria-live="polite">Klik atau tekan Enter pada Ryoshu untuk mulai.</p>
-      <audio id="voice" preload="auto"></audio>
     </section>
   </main>
 
