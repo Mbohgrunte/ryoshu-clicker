@@ -171,6 +171,85 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .leaderboard {
+      margin: 24px auto 0;
+      padding: 18px;
+      border: 1px solid #ffffff12;
+      border-radius: 12px;
+      background: #ffffff08;
+      text-align: left;
+    }
+    .leaderboard h2 {
+      margin: 0 0 14px;
+      color: #f7e5d2;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+    .save-score {
+      display: flex;
+      gap: 8px;
+    }
+    .save-score input {
+      min-width: 0;
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ffffff24;
+      border-radius: 7px;
+      background: #171311;
+      color: #f6eee3;
+      font: inherit;
+    }
+    .save-score input:focus-visible, .save-score button:focus-visible {
+      outline: 2px solid #ff1500;
+      outline-offset: 2px;
+    }
+    .save-score button {
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 7px;
+      background: #a82f27;
+      color: #fff5eb;
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .save-score button:hover { background: #c43b30; }
+    .leaderboard-status {
+      min-height: 1.3em;
+      margin: 9px 0;
+      color: #d7ad94;
+      font-size: .78rem;
+      text-align: center;
+    }
+    .leaderboard-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .leaderboard-list li {
+      display: grid;
+      grid-template-columns: 30px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #ffffff08;
+      font-size: .86rem;
+    }
+    .leaderboard-rank { color: #d18d79; font-weight: 700; }
+    .leaderboard-name { overflow-wrap: anywhere; }
+    .leaderboard-score { color: #f2c9aa; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .leaderboard-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: .82rem;
+      text-align: center;
+    }
+
     .hint {
       min-height: 1.4em;
       margin: 15px 0 0;
@@ -220,6 +299,16 @@
           <span class="score" id="best">0</span>
         </div>
       </div>
+      <section class="leaderboard" aria-labelledby="leaderboard-title">
+        <h2 id="leaderboard-title">Leaderboard lokal</h2>
+        <form class="save-score" id="save-score-form">
+          <label for="player-name" hidden>Nama pemain</label>
+          <input id="player-name" name="player-name" type="text" maxlength="20" placeholder="Nama pemain" autocomplete="nickname" required>
+          <button type="submit">Simpan skor</button>
+        </form>
+        <p class="leaderboard-status" id="leaderboard-status" aria-live="polite">Simpan skor sesi ini untuk masuk peringkat.</p>
+        <ol class="leaderboard-list" id="leaderboard-list" aria-label="10 skor tertinggi"></ol>
+      </section>
       <p class="hint" id="hint" aria-live="polite">Klik atau tekan Enter pada Ryoshu untuk mulai.</p>
       <audio id="voice" src="voice/LCB_Sinner_Ry%C5%8Dsh%C5%AB_Get.wav" preload="auto"></audio>
     </section>
@@ -232,6 +321,12 @@
     const scoreDisplay = document.querySelector("#score");
     const bestDisplay = document.querySelector("#best");
     const hint = document.querySelector("#hint");
+    const saveScoreForm = document.querySelector("#save-score-form");
+    const playerNameInput = document.querySelector("#player-name");
+    const leaderboardList = document.querySelector("#leaderboard-list");
+    const leaderboardStatus = document.querySelector("#leaderboard-status");
+    const leaderboardKey = "ryoshu-plushie-leaderboard";
+    let leaderboard = [];
     const messages = [
       "The audience here is dull. A real work of art should open their eyes.",
       "Didn’t even break a sweat. It’ll take more than this to excite me.",
@@ -247,6 +342,85 @@
     } catch (error) {
       console.warn("Rekor lokal tidak dapat dibaca.", error);
     }
+
+    function loadLeaderboard() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(leaderboardKey) || "[]");
+        if (!Array.isArray(saved)) throw new TypeError("Data leaderboard bukan daftar.");
+        leaderboard = saved.filter(entry =>
+          entry &&
+          typeof entry.name === "string" &&
+          Number.isSafeInteger(entry.score) &&
+          entry.score > 0 &&
+          typeof entry.date === "string"
+        ).slice(0, 10);
+      } catch (error) {
+        console.error("Leaderboard lokal tidak dapat dibaca.", error);
+        leaderboardStatus.textContent = "Leaderboard tidak dapat dibaca dari penyimpanan browser.";
+      }
+      renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+      leaderboardList.replaceChildren();
+      if (leaderboard.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "leaderboard-empty";
+        empty.textContent = "Belum ada skor. Jadilah yang pertama!";
+        leaderboardList.append(empty);
+        return;
+      }
+
+      leaderboard.forEach((entry, index) => {
+        const row = document.createElement("li");
+        const rank = document.createElement("span");
+        const name = document.createElement("span");
+        const points = document.createElement("span");
+        rank.className = "leaderboard-rank";
+        name.className = "leaderboard-name";
+        points.className = "leaderboard-score";
+        rank.textContent = `${index + 1}.`;
+        name.textContent = entry.name;
+        points.textContent = `${entry.score} klik`;
+        row.append(rank, name, points);
+        leaderboardList.append(row);
+      });
+    }
+
+    saveScoreForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        leaderboardStatus.textContent = "Masukkan nama pemain terlebih dahulu.";
+        playerNameInput.focus();
+        return;
+      }
+      if (score < 1) {
+        leaderboardStatus.textContent = "Klik Ryoshu dulu sebelum menyimpan skor.";
+        return;
+      }
+
+      const entry = { name, score, date: new Date().toISOString() };
+      const updated = [...leaderboard, entry]
+        .sort((a, b) => b.score - a.score || a.date.localeCompare(b.date))
+        .slice(0, 10);
+      try {
+        localStorage.setItem(leaderboardKey, JSON.stringify(updated));
+      } catch (error) {
+        console.error("Skor tidak dapat disimpan ke leaderboard lokal.", error);
+        leaderboardStatus.textContent = "Skor tidak dapat disimpan. Periksa pengaturan penyimpanan browser.";
+        return;
+      }
+
+      leaderboard = updated;
+      renderLeaderboard();
+      const rank = leaderboard.indexOf(entry);
+      leaderboardStatus.textContent = rank === -1
+        ? "Skor tersimpan, tetapi belum masuk 10 besar."
+        : `Skor tersimpan di peringkat ${rank + 1}!`;
+    });
+
+    loadLeaderboard();
 
     function makeSparkles() {
       const symbols = ["✦", "✧", "·", "✦"];
