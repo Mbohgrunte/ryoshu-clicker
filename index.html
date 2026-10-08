@@ -45,14 +45,17 @@
 
     main {
       display: grid;
+      grid-template-columns: minmax(0, 1fr);
       min-height: 100svh;
       justify-items: center;
       align-content: start;
-      padding: 32px 20px;
+      padding: 32px max(16px, env(safe-area-inset-left)) 32px max(16px, env(safe-area-inset-right));
     }
 
     .game {
       width: min(100%, 510px);
+      min-width: 0;
+      margin-inline: auto;
       text-align: center;
     }
 
@@ -109,22 +112,40 @@
       pointer-events: none;
     }
 
+    .plushie-button {
+      display: block;
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      border-radius: 50%;
+      appearance: none;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .plushie-button:focus { outline: none; }
+    .plushie-button:focus-visible {
+      outline: 3px solid #ff0000;
+      outline-offset: 5px;
+    }
+
     .plushie {
       display: block;
       width: 100%;
       aspect-ratio: 1;
-      border-radius: 50%;
       object-fit: cover;
-      cursor: pointer;
       user-select: none;
       -webkit-user-drag: none;
+      pointer-events: none;
       transition: transform .16s ease, filter .16s ease;
     }
-    .plushie:hover { filter: saturate(1.08) brightness(1.04); transform: scale(1.025); }
-    .plushie:active { transform: scale(.94) rotate(-3deg); }
+    .plushie-button:hover .plushie { filter: saturate(1.08) brightness(1.04); transform: scale(1.025); }
+    .plushie-button:active .plushie { transform: scale(.94) rotate(-3deg); }
     .plushie-wrap.is-bopping { animation: impact .42s ease-out; }
     .plushie-wrap.is-bopping .plushie { animation: bop .42s cubic-bezier(.2, .8, .25, 1); }
-    .plushie:focus-visible { outline: 3px solid #ff0000; outline-offset: 5px; }
 
     @keyframes bop {
       28% { transform: scale(.84) rotate(-7deg); }
@@ -251,6 +272,7 @@
     .leaderboard-name { overflow-wrap: anywhere; }
     .leaderboard-score { color: #f2c9aa; font-weight: 700; font-variant-numeric: tabular-nums; }
     .leaderboard-empty {
+      grid-column: 1 / -1;
       margin: 0;
       color: var(--muted);
       font-size: .82rem;
@@ -285,15 +307,14 @@
       <p class="intro">My istri gwe</p>
 
       <div class="plushie-wrap" id="plushie-wrap">
+        <button class="plushie-button" id="plushie-button" type="button" aria-label="Ketuk plushie Ryoshu untuk mendapat suara dan poin">
         <img
           class="plushie"
           id="plushie"
           src="images/limbus-company-plushie-ryoshu-17cm-f03cf8a2.jpg"
           alt="Plushie Ryoshu dari Limbus Company"
-          role="button"
-          tabindex="0"
-          aria-label="Ketuk plushie Ryoshu untuk mendapat suara dan poin"
           draggable="false">
+        </button>
       </div>
 
       <div class="scoreboard" aria-label="Skor permainan">
@@ -493,13 +514,7 @@
       makeSparkles();
     }
 
-    plushie.addEventListener("click", tapRyoshu);
-    plushie.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        tapRyoshu();
-      }
-    });
+    document.querySelector("#plushie-button").addEventListener("click", tapRyoshu);
   </script>
 </body>
 </html>
