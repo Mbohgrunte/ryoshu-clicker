@@ -122,19 +122,25 @@
     }
     .plushie:hover { filter: saturate(1.08) brightness(1.04); transform: scale(1.025); }
     .plushie:active { transform: scale(.94) rotate(-3deg); }
-    .plushie-wrap.is-bopping .plushie { animation: bop .28s ease-out; }
+    .plushie-wrap.is-bopping { animation: impact .42s ease-out; }
+    .plushie-wrap.is-bopping .plushie { animation: bop .42s cubic-bezier(.2, .8, .25, 1); }
     .plushie:focus-visible { outline: 3px solid #ff0000; outline-offset: 5px; }
 
     @keyframes bop {
-      45% { transform: scale(.93) rotate(-4deg); }
+      28% { transform: scale(.84) rotate(-7deg); }
+      58% { transform: scale(1.08) rotate(4deg); }
       100% { transform: scale(1) rotate(0); }
+    }
+    @keyframes impact {
+      30% { box-shadow: 0 0 95px #ff5a3d77, 0 24px 60px #0008; }
+      100% { box-shadow: 0 0 70px #c14b3d1a, 0 24px 60px #0008; }
     }
 
     .spark {
       position: absolute;
       z-index: 1;
       color: #f3c79f;
-      font-size: 1.2rem;
+      font-size: var(--size, 1.2rem);
       pointer-events: none;
       animation: sparkle .8s ease-out forwards;
     }
@@ -431,15 +437,16 @@
     loadLeaderboard();
 
     function makeSparkles() {
-      const symbols = ["✦", "✧", "·", "✦"];
-      for (let i = 0; i < 4; i += 1) {
+      const symbols = ["✦", "✧", "✦", "·", "✧", "✦", "·"];
+      for (let i = 0; i < symbols.length; i += 1) {
         const spark = document.createElement("span");
         spark.className = "spark";
         spark.textContent = symbols[i];
         spark.style.left = `${35 + Math.random() * 30}%`;
         spark.style.top = `${35 + Math.random() * 30}%`;
-        spark.style.setProperty("--x", `${(Math.random() - .5) * 150}px`);
-        spark.style.setProperty("--y", `${-35 - Math.random() * 100}px`);
+        spark.style.setProperty("--size", `${1 + Math.random() * 1.2}rem`);
+        spark.style.setProperty("--x", `${(Math.random() - .5) * 210}px`);
+        spark.style.setProperty("--y", `${(Math.random() - .75) * 190}px`);
         plushieWrap.append(spark);
         spark.addEventListener("animationend", () => spark.remove(), { once: true });
       }
