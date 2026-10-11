@@ -384,7 +384,7 @@
   </main>
   <section class="reward-video-overlay" id="reward-video-overlay" aria-label="Video hadiah Ryoshu" aria-modal="true" role="dialog" hidden>
     <button class="reward-video-close" id="reward-video-close" type="button">Tutup video</button>
-    <video class="reward-video" id="reward-video" src="Rank/Ryoshu_Promotion.mp4" playsinline preload="auto"></video>
+    <video class="reward-video" id="reward-video" src="Rank/Ryoshu_Promotion2.mp4" playsinline preload="auto"></video>
     <p class="reward-video-error" id="reward-video-error" role="alert" hidden>Video tidak dapat diputar. Periksa apakah file video ikut diunggah bersama website.</p>
   </section>
 
@@ -435,7 +435,7 @@
     function loadLeaderboard() {
       try {
         const saved = JSON.parse(localStorage.getItem(leaderboardKey) || "[]");
-        if (!Array.isArray(saved)) throw new TypeError("Data leaderboard bukan daftar.");
+        if (!Array.isArray(saved)) throw new TypeError("eror.");
         leaderboard = saved.filter(entry =>
           entry &&
           typeof entry.name === "string" &&
@@ -444,7 +444,7 @@
           typeof entry.date === "string"
         ).slice(0, 10);
       } catch (error) {
-        console.error("Leaderboard lokal tidak dapat dibaca.", error);
+        console.error("eror leaderboard", error);
         leaderboardStatus.textContent = "Leaderboard tidak dapat dibaca dari penyimpanan browser.";
       }
       renderLeaderboard();
@@ -455,7 +455,7 @@
       if (leaderboard.length === 0) {
         const empty = document.createElement("li");
         empty.className = "leaderboard-empty";
-        empty.textContent = "Belum ada skor. Jadilah yang pertama!";
+        empty.textContent = "Belum ada skor.";
         leaderboardList.append(empty);
         return;
       }
@@ -497,7 +497,7 @@
         localStorage.setItem(leaderboardKey, JSON.stringify(updated));
       } catch (error) {
         console.error("Skor tidak dapat disimpan ke leaderboard lokal.", error);
-        leaderboardStatus.textContent = "Skor tidak dapat disimpan. Periksa pengaturan penyimpanan browser.";
+        leaderboardStatus.textContent = "Skor tidak dapat disimpan. cek pengaturan penyimpanan browser.";
         return;
       }
 
