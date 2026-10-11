@@ -29,6 +29,8 @@
         repeating-linear-gradient(135deg, #ffffff03 0 1px, transparent 1px 7px),
         #171311;
     }
+    body.video-open { overflow: hidden; }
+    [hidden] { display: none !important; }
 
     body::before, body::after {
       position: fixed;
@@ -279,6 +281,45 @@
       text-align: center;
     }
 
+    .reward-video-overlay {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 56px 16px 20px;
+      background: #080707f5;
+    }
+    .reward-video {
+      display: block;
+      width: min(100%, 1100px);
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #000;
+    }
+    .reward-video-close {
+      position: absolute;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      padding: 10px 16px;
+      border: 1px solid #ffffff40;
+      border-radius: 8px;
+      background: #291d1b;
+      color: #fff5eb;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .reward-video-close:hover { background: #a82f27; }
+    .reward-video-error {
+      max-width: 32rem;
+      margin: 16px;
+      color: #f6eee3;
+      text-align: center;
+    }
+
     .hint {
       min-height: 1.4em;
       margin: 15px 0 0;
@@ -341,6 +382,11 @@
       </section>
     </section>
   </main>
+  <section class="reward-video-overlay" id="reward-video-overlay" aria-label="Video hadiah Ryoshu" aria-modal="true" role="dialog" hidden>
+    <button class="reward-video-close" id="reward-video-close" type="button">Tutup video</button>
+    <video class="reward-video" id="reward-video" src="Rank/Ryoshu_Promotion.mp4" playsinline preload="auto"></video>
+    <p class="reward-video-error" id="reward-video-error" role="alert" hidden>Video tidak dapat diputar. Periksa apakah file video ikut diunggah bersama website.</p>
+  </section>
 
   <script>
     const plushie = document.querySelector("#plushie");
@@ -353,6 +399,10 @@
     const playerNameInput = document.querySelector("#player-name");
     const leaderboardList = document.querySelector("#leaderboard-list");
     const leaderboardStatus = document.querySelector("#leaderboard-status");
+    const rewardVideoOverlay = document.querySelector("#reward-video-overlay");
+    const rewardVideo = document.querySelector("#reward-video");
+    const rewardVideoClose = document.querySelector("#reward-video-close");
+    const rewardVideoError = document.querySelector("#reward-video-error");
     const leaderboardKey = "ryoshu-plushie-leaderboard";
     const voiceTracks = [
       "LCB_Sinner_Ryōshū_Chat_1.wav",
@@ -493,7 +543,29 @@
       voice.play().catch(error => console.warn("Suara Ryōshū tidak dapat diputar.", error));
     }
 
+    function closeRewardVideo() {
+      rewardVideo.pause();
+      rewardVideo.currentTime = 0;
+      rewardVideoOverlay.hidden = true;
+      document.body.classList.remove("video-open");
+      document.querySelector("#plushie-button").focus();
+    }
+
+    function playRewardVideo() {
+      voice.pause();
+      rewardVideoError.hidden = true;
+      rewardVideoOverlay.hidden = false;
+      document.body.classList.add("video-open");
+      rewardVideo.play().catch(error => {
+        console.warn("Video hadiah Ryoshu tidak dapat diputar.", error);
+        rewardVideoError.hidden = false;
+        rewardVideoClose.focus();
+      });
+    }
+
     function tapRyoshu() {
+      if (!rewardVideoOverlay.hidden) return;
+
       score += 1;
       scoreDisplay.textContent = String(score);
       hint.textContent = messages[(score - 1) % messages.length];
@@ -516,8 +588,16 @@
       void plushieWrap.offsetWidth;
       plushieWrap.classList.add("is-bopping");
       makeSparkles();
+
+      if (score === 50) playRewardVideo();
     }
 
+    rewardVideo.addEventListener("ended", closeRewardVideo);
+    rewardVideo.addEventListener("error", () => {
+      rewardVideoError.hidden = false;
+      rewardVideoClose.focus();
+    });
+    rewardVideoClose.addEventListener("click", closeRewardVideo);
     document.querySelector("#plushie-button").addEventListener("click", tapRyoshu);
   </script>
 </body>
